@@ -31,7 +31,7 @@ WARNING = 1
 CRITICAL = 2
 
 # Checkpoint SDK
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # lib is a library that handles the communication with the Check Point management server.
 from cpapi import APIClient, APIClientArgs
