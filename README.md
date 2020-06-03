@@ -16,7 +16,7 @@ The Thresholds are freely configurable (on daily base).
 
 To use it on Nagios Server you need:
 
-python installed (script worked with 2.7 and 3.7
+python installed (script worked with 2.7 and 3.7)
 
 in the plugin folder i created an own "checkpoint" folder, containing the SDK and my script.
 
