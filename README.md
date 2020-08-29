@@ -7,7 +7,7 @@ After successful logging in, we are parsing the API output from show-ip-status a
 
 After some calculating and comparing the script gives output, understandable for Nagios based systems.
 
-OK = 0 - WARNING = 1 - CRITICAL = 2 UNKNOWN = 3
+OK = 0 - WARNING = 1 - CRITICAL = 2 - UNKNOWN = 3
 
 
 The Thresholds are freely configurable (on daily base).
