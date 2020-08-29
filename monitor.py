@@ -70,27 +70,23 @@ def main():
             ips_date_update_posix=ips_date_update["posix"]
             #
             #
-            ips_update_date_delta=datetime.date.fromtimestamp(ips_date_update_posix/1000) - datetime.date.fromtimestamp(ips_date_last_install_posix/1000)            
+            ips_update_date_delta=datetime.datetime.fromtimestamp(ips_date_update_posix/1000) - datetime.datetime.fromtimestamp(ips_date_last_install_posix/1000)            
             #work with it
             if not ips_bool_update:
-                if ips_update_date_delta.days < 0:
-                    print("OK! No Update available - Last installed update: {0} - Installed Version {1}" .format(ips_date_last_install_iso, ips_current_ver_info))
-                    raise SystemExit("OK")
-                else:
-                    print("OK! No Update available - Last installed update: {0} - Installed Version {1} - Update Date Delta: {2}" .format(ips_date_last_install_iso, ips_current_ver_info, ips_update_date_delta))
-                    raise SystemExit("OK")
+                print("OK! No Update available - Last installed update: {0} - Installed Version {1}" .format(ips_date_last_install_iso, ips_current_ver_info))
+                raise SystemExit("OK")
             elif ips_update_date_delta.days > 3:
                 print("CRITICAL! Updates available -  Last installed update: {0} - last Installed {1}; available {2} - Update Date Delta: {3} Days!" .format(ips_date_last_install_iso, ips_current_ver_info, ips_update_ver_info,ips_update_date_delta.days))
                 raise SystemExit("CRITICAL")
+            elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 0:
+                print("WARNING! Updates available -  Last installed update: {0} - last Installed {1}; available {2} - Update Date Delta: {3} Days" .format(ips_date_last_install_iso, ips_current_ver_info, ips_update_ver_info,ips_update_date_delta.days))
+                raise SystemExit("WARNING")
             else:
-                if ips_update_date_delta.days < 0:
-                    print("WARNING! Updates available -  Last installed update: {0} - last Installed {1}; available {2}" .format(ips_date_last_install_iso, ips_current_ver_info, ips_update_ver_info))
-                    raise SystemExit("WARNING")
-                else:
-                    print("WARNING! Updates available -  Last installed update: {0} - last Installed {1}; available {2} - Update Date Delta: {3} Days" .format(ips_date_last_install_iso, ips_current_ver_info, ips_update_ver_info,ips_update_date_delta.days))
-                    raise SystemExit("WARNING")    
+                print("There is something wrong - please check! API Response:", ips_info)
+                raise SystemExit("UNKNOWN")
         else:
             print("meh - something went wrong")
-            
+            raise SystemExit("UNKNOWN")
+
 if __name__ == "__main__":
     main()
