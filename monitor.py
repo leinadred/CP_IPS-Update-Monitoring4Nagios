@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-H', '--api_server', help='Target Host (CP Management Server)')
 parser.add_argument('-U', '--api_user', help='API User')
 parser.add_argument('-P', '--api_pwd', help='API Users Password')
-
+parser.add_argument('-C', '--api_context', help='If SmartCloud-1 is used, enter context information here (i.e. bhkjnkm-knjhbas-d32424b/web_api)')
 args = parser.parse_args()
 
 # CONSTANTS FOR RETURN CODES UNDERSTOOD BY NAGIOS
@@ -30,18 +30,14 @@ OK = 0
 WARNING = 1
 CRITICAL = 2
 
-# Checkpoint SDK
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# lib is a library that handles the communication with the Check Point management server.
+# IMPORT Checkpoint SDK
 from cpapi import APIClient, APIClientArgs
 
 
 def main():
-    client_args = APIClientArgs(server=args.api_server)
+    client_args = APIClientArgs(server=args.api_server, context=args.api_context)
     with APIClient(client_args) as client:
-        #
-        #### This i
+        # If Errer occurs due to fingerprtnt mismatch
         if client.check_fingerprint() is False:
             print("Could not get the server's fingerprint - Check connectivity with the server.")
             raise SystemExit("UNKNOWN")
@@ -49,14 +45,17 @@ def main():
         # login to server:
         login_res = client.login(args.api_user, args.api_pwd)
 
+        # when login failed
         if login_res.success is False:
             print("Login failed: {}".format(login_res.error_message))
             raise SystemExit("UNKNOWN")
+        
+        #API Call "show ips status"
         monitor_ips_version = client.api_call("show-ips-status")
         if monitor_ips_version.success:
-            #Editing around Vars
+            #fetching data from response
             ips_info=monitor_ips_version.data
-            #version numbers
+            #getting version numbers
             ips_current_ver_info=ips_info["installed-version"]
             ips_update_ver_info=ips_info["latest-version"]
             #bool update available - yes/no
@@ -67,7 +66,7 @@ def main():
             ips_date_last_install_posix=ips_date_last_install["posix"]
             #release date of last update
             ips_date_update=ips_info["latest-version-creation-time"]
-            ips_date_update_iso=ips_date_update["iso-8601"]
+            #ips_date_update_iso=ips_date_update["iso-8601"]
             ips_date_update_posix=ips_date_update["posix"]
             #
             #
