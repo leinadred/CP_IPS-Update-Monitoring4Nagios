@@ -11,10 +11,6 @@
 # corrected States/Exit Codes(Unknown" is "3" now)
 # added to "client_args" - unsafe=True - for not having to handle fingerprints and certificates, as monitoring is not done manually ("do you accept fingerprint xyz?")
 # 
-### Handle with care ####
-#### 
-#### Changed in SDK (to unsecure - no warnings)
-#### mgmt_api.py - line 35 to unsafe_auto_accept=True<---
 
 from __future__ import print_function
 # A package for reading passwords without displaying them on the console.
