@@ -84,7 +84,7 @@ def fun_getipsver_mgmt():
         elif ips_update_date_delta.days > 3:
             output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("CRITICAL")
-        elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 0:
+        elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 3:
             output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("WARNING")
         else:
@@ -124,7 +124,7 @@ def fun_getipsver_gws():
             ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
             dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
             if ipsver_mgmt!=ipsver_gw.group(1):
-                output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"has not the same version as Management! "+ipsver_mgmt+" - Gw "+ipsver_gw.group(1)+""}})
+                output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"has not the same version as Management! Management:"+ipsver_mgmt+" - Gw:"+ipsver_gw.group(1)+""}})
                 output_code.append("WARNING")
             elif ipsver_mgmt==ipsver_gw.group(1):
                 output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"OK! Mgmt "+ipsver_mgmt+" - Gw "+ipsver_gw.group(1)+""}})
