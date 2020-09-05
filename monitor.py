@@ -72,9 +72,7 @@ def fun_getipsver_mgmt():
         ips_date_last_install=res_ipsver_mgmt.data["last-updated"]
         ips_date_last_install_iso=ips_date_last_install["iso-8601"]
         ips_date_last_install_posix=ips_date_last_install["posix"]
-        #release date of last update
         ips_date_update=res_ipsver_mgmt.data["latest-version-creation-time"]
-        #ips_date_update_iso=ips_date_update["iso-8601"]
         ips_date_update_posix=ips_date_update["posix"]
         #
         #
@@ -83,16 +81,14 @@ def fun_getipsver_mgmt():
         if not ips_bool_update:
             output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+ips_date_last_install_iso+" - Installed Version "+ips_current_ver_info+" - Newest: "+ips_update_ver_info}})
             output_code.append("OK")
-            #raise SystemExit(OK)
         elif ips_update_date_delta.days > 3:
             output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("CRITICAL")
-            # raise SystemExit("CRITICAL")
         elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 0:
             output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("WARNING")
         else:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response: "+res_ipsver_mgmt.data}})
+            output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response: "+str(res_ipsver_mgmt.data)}})
             output_code.append("UNKNOWN")
     else:
         output_text.update({"meh - something went wrong"})
@@ -104,11 +100,9 @@ def fun_getipsver_gws():
     global ipsver_mgmt
     global output_text
     global output_code
-    #res_ipsver_mgmt=fun_getipsver_mgmt()
-    #res_ipsver_mgmt["installed-version"]
     client_args = APIClientArgs(server=args.api_server, context=args.api_context, unsafe='True')
     with APIClient(client_args) as client:
-        # If Errer occurs due to fingerprtnt mismatch
+        # If Errer occurs due to fingerprint mismatch
         if client.check_fingerprint() is False:
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Could not get the server's fingerprint - Check connectivity with the server."}})
             output_code.append("UNKNOWN")
@@ -139,21 +133,10 @@ def fun_getipsver_gws():
                 output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
                 output_code.append("UNKNOWN")
             gwselector=gwselector+1
-        #print(dict_ipsver_gw)
-        #print(dict_ipsver_gw.items)
-        #for item in dict_ipsver_gw:
-        #    #if dict_ipsver_gw[item]!=ipsver_mgmt:
-        #    if ipsver_mgmt!=ipsver_mgmt:
-        #        output_text.update({"Monitor": "Gateway "+item+" IPS Version", "Result":"has not the same version as Management! "+ipsver_mgmt+" - Gw "+ipsver_gw.group(1)+""})
-        #        output_code.append("WARNING")
-        #    elif ipsver_mgmt==ipsver_mgmt:
-        #        output_text.update({"Monitor": "Gateway "+item+" IPS Version", "Result":"OK! Mgmt "+ipsver_mgmt+" - Gw "+ipsver_gw.group(1)+""})
-        #        output_code.append("OK")
     return output_text, output_code
 
 def fun_nagiosize():
     #Primary built to centralize the "Unknown/OK/Error" Messages in one fplace, so the whole script is being run.
-    #OK MESSAGE
     global output_text
     global output_code
     if "CRITICAL" in output_code:
