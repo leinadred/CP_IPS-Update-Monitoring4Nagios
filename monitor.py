@@ -169,8 +169,9 @@ def fun_nagiosize():
         print("OK! "+str(output_text))
         raise SystemExit(OK)
     else:
-        raise SystemExit("UNKNOWN! Something went wrong, please troubleshoot/debug script!")
-    
+        print("UNKNOWN! Something went wrong, please troubleshoot/debug script! "+str(output_text))
+        raise SystemExit(UNKNOWN)
+
 if __name__ == "__main__":
     fun_getipsver_mgmt()
     fun_getipsver_gws()
