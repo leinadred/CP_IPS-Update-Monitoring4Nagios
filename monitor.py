@@ -85,7 +85,7 @@ def fun_getipsver_mgmt():
             output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("CRITICAL")
         elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 3:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
+            output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta.days)+" Days!"}})
             output_code.append("WARNING")
         else:
             output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response: "+str(res_ipsver_mgmt.data)}})
