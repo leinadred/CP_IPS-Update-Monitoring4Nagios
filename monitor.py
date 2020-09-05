@@ -157,11 +157,14 @@ def fun_nagiosize():
     global output_text
     global output_code
     if "CRITICAL" in output_code:
-        raise SystemExit("CRITICAL"+str(output_text))
+        print("CRITICAL! "+str(output_text))
+        raise SystemExit(CRITICAL)
     elif "WARNING" in output_code:
-        raise SystemExit("WARNING! "+str(output_text))
+        print("WARNING! "+str(output_text))
+        raise SystemExit(WARNING)
     elif "UNKNOWN" in output_code:
-        raise SystemExit("UNKNOWN! "+str(output_text))
+        print("UNKNOWN! "+str(output_text))
+        raise SystemExit(UNKNOWN)
     elif all(ele == "OK" for ele in output_code):
         print("OK! "+str(output_text))
         raise SystemExit(OK)
