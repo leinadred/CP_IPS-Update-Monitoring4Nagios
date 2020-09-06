@@ -7,7 +7,8 @@ After successful logging in, we are parsing the API output from show-ip-status a
 s based systems.
 
 OK = 0 - WARNING = 1 - CRITICAL = 2 - UNKNOWN = 3
-<blockquote class="imgur-embed-pub" lang="en" data-id="a/0PzRM3f" data-context="false" ><a href="//imgur.com/a/0PzRM3f"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png?raw=true)
+
 
 The Thresholds for "WARNING" / "CRITICAL" are configurable within the script (on daily base).
 
