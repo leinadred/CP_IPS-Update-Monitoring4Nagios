@@ -8,7 +8,7 @@ s based systems.
 
 OK = 0 - WARNING = 1 - CRITICAL = 2 - UNKNOWN = 3
 ![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png?raw=true)
-
+![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_warn.png?raw=true)
 
 The Thresholds for "WARNING" / "CRITICAL" are configurable within the script (on daily base).
 
