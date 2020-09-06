@@ -76,16 +76,16 @@ def fun_getipsver_mgmt():
         ips_date_update_posix=ips_date_update["posix"]
         #
         #
-        ips_update_date_delta=datetime.datetime.fromtimestamp(ips_date_update_posix/1000) - datetime.datetime.fromtimestamp(ips_date_last_install_posix/1000)            
+        ips_update_date_delta=datetime.datetime.fromtimestamp(ips_date_update_posix/1000) - datetime.datetime.fromtimestamp(ips_date_last_install_posix/1000)
         #work with it
         if not ips_bool_update:
             output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+ips_date_last_install_iso+" - Installed Version "+ips_current_ver_info+" - Newest: "+ips_update_ver_info}})
             output_code.append("OK")
         elif ips_update_date_delta.days > 3:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
+            output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version "+ips_current_ver_info+"  - Newest: "+ips_update_ver_info+" - Update Date Delta: "+ips_update_date_delta.days+" Days!"}})
             output_code.append("CRITICAL")
         elif ips_update_date_delta.days > 0 and ips_update_date_delta.days < 3:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version"+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta.days)+" Days!"}})
+            output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+ips_date_last_install_iso+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta.days)+" Days!"}})
             output_code.append("WARNING")
         else:
             output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response: "+str(res_ipsver_mgmt.data)}})
