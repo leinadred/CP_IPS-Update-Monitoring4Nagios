@@ -3,7 +3,7 @@ Script is logging into Checkpoint Management and checking the IPS Database Updat
 
 For the login, the SDK (https://github.com/CheckPointSW/cp_mgmt_api_python_sdk) is used (Option "unsafe=true" is passed to api, as Nagios is not able to respond to qustions).
 
-After successful logging in, we are parsing the API output from show-ip-status and comparing it with i.e actual date or "update available" followed by sending an API request to "shoe-simple-gateways" to fetch managed gateways and running "run-script -> "clish -c "show security-gateway ips status""" on them. Now the Versions of installed IPS are compared. if any of the checks above ends with a warning, state is "WARNING". if one check is in critical state, the script gives back "CRITICAL" state and so on. Only if all checks are "OK", an OK will be sent to nagios. 
+After successful logging in, we are parsing the API output from show-ip-status and comparing it with i.e actual date or "update available" followed by sending an API request to "show-simple-gateways" to fetch managed gateways and running "run-script -> "clish -c "show security-gateway ips status""" on them. Now the Versions of installed IPS are compared. if any of the checks above ends with a warning, state is "WARNING". if one check is in critical state, the script gives back "CRITICAL" state and so on. Only if all checks are "OK", an OK will be sent to nagios. 
 s based systems.
 
 OK = 0 - WARNING = 1 - CRITICAL = 2 - UNKNOWN = 3
@@ -21,5 +21,8 @@ how this is installed on my machine (CENTREON 20.04.5):
   installed Checkpoint SDK (link above) with *pip install git+https://github.com/CheckPointSW/cp_mgmt_api_python_sdk*
   changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
 
+
+20200906
+added optional arg "-M" for monitoring Management Servers IPS Version only
 
 Done
