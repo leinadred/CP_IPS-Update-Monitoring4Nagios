@@ -108,7 +108,7 @@ def fun_getipsver_gws():
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Could not get the server's fingerprint - Check connectivity with the server."}})
             output_code.append("UNKNOWN")
 
-        # login to server:
+        # login to server:r
         login_res = client.login(args.api_user,args.api_pwd)
 
         # when login failed
