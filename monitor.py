@@ -29,6 +29,7 @@ parser.add_argument('-H', '--api_server', help='Target Host (CP Management Serve
 parser.add_argument('-U', '--api_user', help='API User')
 parser.add_argument('-P', '--api_pwd', help='API Users Password')
 parser.add_argument('-C', '--api_context', help='If SmartCloud-1 is used, enter context information here (i.e. bhkjnkm-knjhbas-d32424b/web_api)')
+parser.add_argument('-M', '--mgmtonly', help="check IPS version on Management Station only", action="store_true")
 args = parser.parse_args()
 
 # CONSTANTS FOR RETURN CODES UNDERSTOOD BY NAGIOS
@@ -124,13 +125,13 @@ def fun_getipsver_gws():
             ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
             dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
             if ipsver_mgmt!=ipsver_gw.group(1):
-                output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"has not the same version as Management! Management:"+ipsver_mgmt+" - Gw:"+ipsver_gw.group(1)+""}})
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
                 output_code.append("WARNING")
             elif ipsver_mgmt==ipsver_gw.group(1):
-                output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"OK! Mgmt "+ipsver_mgmt+" - Gw "+ipsver_gw.group(1)+""}})
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"OK! Mgmt "+str(ipsver_mgmt)+" - Gw "+str(ipsver_gw.group(1))+""}})
                 output_code.append("OK")
             else:
-                output_text.update({"Monitor Gateway "+gwname+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
                 output_code.append("UNKNOWN")
             gwselector=gwselector+1
     return output_text, output_code
@@ -156,7 +157,11 @@ def fun_nagiosize():
         raise SystemExit(UNKNOWN)
 
 if __name__ == "__main__":
-    fun_getipsver_mgmt()
-    fun_getipsver_gws()
-    fun_nagiosize()
+    if args.mgmtonly:
+        fun_getipsver_mgmt()
+        fun_nagiosize()
+    else:
+        fun_getipsver_mgmt()
+        fun_getipsver_gws()
+        fun_nagiosize()
 
