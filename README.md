@@ -22,4 +22,7 @@ how this is installed on my machine (CENTREON 20.04.5):
   changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
 
 
+20200906
+added optional arg "-M" for monitoring Management Servers IPS Version only
+
 Done
