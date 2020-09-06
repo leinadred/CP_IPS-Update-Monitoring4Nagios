@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 import getpass
-import sys, os
+import sys, os, logging
 import datetime
 import time
 import argparse
@@ -24,15 +24,22 @@ import re
 from cpapi import APIClient, APIClientArgs
 
 
+#################################################################################################
+# set args                                                                                      #
+#################################################################################################
 parser = argparse.ArgumentParser()
 parser.add_argument('-H', '--api_server', help='Target Host (CP Management Server)')
 parser.add_argument('-U', '--api_user', help='API User')
 parser.add_argument('-P', '--api_pwd', help='API Users Password')
 parser.add_argument('-C', '--api_context', help='If SmartCloud-1 is used, enter context information here (i.e. bhkjnkm-knjhbas-d32424b/web_api)')
 parser.add_argument('-M', '--mgmtonly', help="check IPS version on Management Station only", action="store_true")
+parser.add_argument('-v', '--verbose', help='Run Script with logging output - Troubleshooting and so', action='store_true')
 args = parser.parse_args()
 
-# CONSTANTS FOR RETURN CODES UNDERSTOOD BY NAGIOS
+
+#################################################################################################
+# CONSTANTS FOR RETURN CODES UNDERSTOOD BY NAGIOS                                               #                                                              #
+#################################################################################################
 OK = 0
 WARNING = 1
 CRITICAL = 2
@@ -41,6 +48,14 @@ UNKNOWN = 3
 output_code=[]
 output_text={}
 ipsver_mgmt=()
+
+#################################################################################################
+# ADDING DEBUG MODE                                                                             #                                                              #
+#################################################################################################
+if args.verbose:
+    logging.basicConfig(level=logging.DEBUG)
+
+logging.debug("################## Starting - With extended Logging ##################")
 
 def fun_getipsver_mgmt():
     global output_text
@@ -54,6 +69,7 @@ def fun_getipsver_mgmt():
             output_code.append("UNKNOWN")
         # login to server:
         login_res = client.login(args.api_user, args.api_pwd)
+        logging.debug('API Login done: '+str(login_res))
         # when login failed
         if login_res.success is False:
             output_text.update="Login failed: {}".format(login_res.error_message)
@@ -62,7 +78,6 @@ def fun_getipsver_mgmt():
             #API Call "show ips status"
             res_ipsver_mgmt = client.api_call("show-ips-status")
             ipsver_mgmt=res_ipsver_mgmt.data["installed-version"]
-    
     if ipsver_mgmt:
         #getting version numbers
         ips_current_ver_info=res_ipsver_mgmt.data["installed-version"]
@@ -78,20 +93,26 @@ def fun_getipsver_mgmt():
         #
         #
         ips_update_date_delta=((ips_date_last_install_posix/1000 - ips_date_update_posix/1000))/(60*60*24)
+        logging.debug('Fetched Management IPS Version: '+str(ips_current_ver_info)+", most recent:"+str(ips_current_ver_info)+" From:"+str(ips_date_last_install_iso))
         #work with it
         if not ips_bool_update:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+str(ips_date_last_install_iso)+" - Installed Version "+ips_current_ver_info+" - Newest: "+ips_update_ver_info}})
+            logging.debug("Update available: " +str(ips_bool_update))
+            output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+str(ips_date_last_install_iso)+" - Installed Version "+str(ips_current_ver_info)+" - Newest: "+str(ips_update_ver_info)}})
             output_code.append("OK")
         elif ips_update_date_delta > 3:
+            logging.debug("Update available: " +str(ips_bool_update))
             output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
             output_code.append("CRITICAL")
         elif ips_update_date_delta > 0 and ips_update_date_delta < 3:
+            logging.debug("Update available: " +str(ips_bool_update))
             output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
             output_code.append("WARNING")
         else:
-            output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response: "+str(res_ipsver_mgmt.data)}})
+            logging.debug("Something is wrong - API Response: " +str(login_res))
+            output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response (with -v)"}})
             output_code.append("UNKNOWN")
     else:
+        logging.debug("Soomething is wron - API Response: " +str(login_res))
         output_text.update({"meh - something went wrong"})
         output_code.append("UNKNOWN")
 
@@ -113,11 +134,13 @@ def fun_getipsver_gws():
 
         # when login failed
         if login_res.success is False:
+            logging.debug("Something is wrong - API Response: " +str(login_res))
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Login failed: {}".format(login_res.error_message)}})
             output_code.append("UNKNOWN")
         res_getmanagedgws = client.api_call("show-simple-gateways",{"limit":"500"})
         gwselector=0
         totalgws=res_getmanagedgws.data['total']
+        logging.debug("Checking IPS version on "+str(res_getmanagedgws.data['total'])+" Gateways")
         dict_ipsver_gw={}
         while gwselector < totalgws:
             gwname=res_getmanagedgws.data['objects'][gwselector]['name']
@@ -133,13 +156,15 @@ def fun_getipsver_gws():
             else:
                 output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
                 output_code.append("UNKNOWN")
+            logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
             gwselector=gwselector+1
     return output_text, output_code
 
 def fun_nagiosize():
-    #Primary built to centralize the "Unknown/OK/Error" Messages in one fplace, so the whole script is being run.
+    #Primary built to centralize the "Unknown/OK/Error" Messages in one place, so the whole script is being run.
     global output_text
     global output_code
+    logging.debug("Work is done - create and give feedback to Monitoring Engine: "+str(output_code)+" Message: "+str(output_text))
     if "CRITICAL" in output_code:
         print("CRITICAL! "+str(output_text))
         raise SystemExit(CRITICAL)
