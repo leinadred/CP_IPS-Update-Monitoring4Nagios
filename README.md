@@ -21,10 +21,10 @@ how this is installed on my machine (CENTREON 20.04.5):
   installed Checkpoint SDK (link above) with *pip install git+https://github.com/CheckPointSW/cp_mgmt_api_python_sdk*
   changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
 
-20200903. 
+20200903  
 added "-C" for Context, needed for SmartCloud-1   
-added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script"). 
-20200906. 
-added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging. 
+added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")  
+20200906  
+added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging  
 
 
