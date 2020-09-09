@@ -19,7 +19,9 @@ how this is installed on my machine (CENTREON 20.04.5):
   in /usr/lib/centreon/plugins added a folder "added" with scipts not coming from centreon (in case centreon is updating their plugins, they won´t delete my :)
   installed python3.x (CentOS delivers 3.6, which works)
   installed Checkpoint SDK (link above) with *pip install git+https://github.com/CheckPointSW/cp_mgmt_api_python_sdk*
+  *chmod +x monitor.py* - otherwise execute the file like *python(2/3/3.x) monitor.py -H HOSTADDRESS [-C context-lik-12389123-1231/web_api ] -U apiuser -P securepass*
   changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
+  create command and checks at monitoring engine level.
 
 20200903  
 added "-C" for Context, needed for SmartCloud-1   
