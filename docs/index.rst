@@ -1,7 +1,5 @@
 Monitoring IPS Updates on CP Management Servers and managed Gateways
 ===========================================================================
-.. toctree::
-   :maxdepth: 2
 
 Basic informations
 ---------------------
