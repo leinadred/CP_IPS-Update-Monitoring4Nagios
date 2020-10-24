@@ -62,12 +62,18 @@ I am kind of a beginner with python but will be happy to assist and/or learn mor
 
 Changelog
 -------------
-20200903  
+### 20200903 ###
+
 added "-C" for Context, needed for SmartCloud-1     
+
 added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")    
-20200906  
+
+### 20200906  ### 
+
 added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging    
-20201024  
+
+### 20201024  ###
+
 added and improved error handling    
 
 - when SMS did not get an IPS version update or was not able to fetch recent version  
