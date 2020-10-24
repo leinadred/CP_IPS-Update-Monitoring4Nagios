@@ -22,16 +22,3 @@ how this is installed on my machine (CENTREON 20.04.5):
   *chmod +x monitor.py* - otherwise execute the file like *python(2/3/3.x) monitor.py -H HOSTADDRESS [-C context-lik-12389123-1231/web_api ] -U apiuser -P securepass*
   changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
   create command and checks at monitoring engine level.
-
-20200903  
-added "-C" for Context, needed for SmartCloud-1   
-added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")  
-20200906  
-added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging  
-20201024  
-added and improved error handling  
-- when SMS did not get an IPS version update or was not able to fetch recent version  
-- when SMS cannot reach a gateway  
-- added more logging outputs at verbose executing (-v)  
-- for checking on "On Premise" SMS, no argument "-C" needed
-
