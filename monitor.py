@@ -37,6 +37,8 @@ parser.add_argument('-v', '--verbose', help='Run Script with logging output - Tr
 args = parser.parse_args()
 
 
+if args.api_context == "none":
+    args.api_context = False
 #################################################################################################
 # CONSTANTS FOR RETURN CODES UNDERSTOOD BY NAGIOS                                               #                                                              #
 #################################################################################################
