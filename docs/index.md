@@ -20,13 +20,8 @@ s based systems.
 
 The Thresholds for "WARNING" / "CRITICAL" are configurable within the script (on day base).
 
-
-.. image:: https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png
-   :width: 400 px
-.. image:: https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_warn.png   
-   :width: 400 px
-
-
+![OK - State](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png)
+![WARNING - State](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_warn.png)
 
 
 Installation
