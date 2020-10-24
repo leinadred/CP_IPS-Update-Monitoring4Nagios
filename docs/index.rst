@@ -76,7 +76,9 @@ Changelog
 - added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging   
 
 20201024   
+
 - added and improved error handling   
+
    - when SMS did not get an IPS version update or was not able to fetch recent version   
    - when SMS cannot reach a gateway   
    - added more logging outputs at verbose executing (-v)   
