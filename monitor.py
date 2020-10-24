@@ -61,24 +61,32 @@ def fun_getipsver_mgmt():
     global output_text
     global output_code
     global ipsver_mgmt
-    client_args = APIClientArgs(server=args.api_server, context=args.api_context, unsafe='True')
+    if args.api_context:
+        client_args = APIClientArgs(server=args.api_server, context=args.api_context, unsafe='True')
+    else:
+        client_args = APIClientArgs(server=args.api_server, unsafe='True')
     with APIClient(client_args) as client:
-        # If Errer occurs due to fingerprtnt mismatch
+        # If Errer occurs due to fingerprint mismatch
         if client.check_fingerprint() is False:
-            output_text.update="Could not get the server's fingerprint - Check connectivity with the server."
+            output_text.update({"Message":"Could not get the server's fingerprint - Check connectivity with the server."})
             output_code.append("UNKNOWN")
+            print("UNKNOWN! Logging into SMS not successful! Please troubleshoot/debug script! "+str(output_text))
+            raise SystemExit(UNKNOWN)
         # login to server:
         login_res = client.login(args.api_user, args.api_pwd)
         logging.debug('API Login done: '+str(login_res))
         # when login failed
-        if login_res.success is False:
-            output_text.update="Login failed: {}".format(login_res.error_message)
+        if not login_res.success:
+            output_text.update({"Message":"Login failed: "+str(login_res.error_message)})
             output_code.append("UNKNOWN")
+            print("UNKNOWN! Logging into SMS not successful! Please troubleshoot/debug script! "+str(output_text))
+            raise SystemExit(UNKNOWN)
         else:
             #API Call "show ips status"
             res_ipsver_mgmt = client.api_call("show-ips-status")
             ipsver_mgmt=res_ipsver_mgmt.data["installed-version"]
     if ipsver_mgmt:
+        logging.debug('API Output:' +str(res_ipsver_mgmt))
         #getting version numbers
         ips_current_ver_info=res_ipsver_mgmt.data["installed-version"]
         ips_update_ver_info=res_ipsver_mgmt.data["latest-version"]
@@ -88,33 +96,43 @@ def fun_getipsver_mgmt():
         ips_date_last_install=res_ipsver_mgmt.data["last-updated"]
         ips_date_last_install_iso=ips_date_last_install["iso-8601"]
         ips_date_last_install_posix=ips_date_last_install["posix"]
-        ips_date_update=res_ipsver_mgmt.data["latest-version-creation-time"]
-        ips_date_update_posix=ips_date_update["posix"]
-        #
-        #
-        ips_update_date_delta=((ips_date_last_install_posix/1000 - ips_date_update_posix/1000))/(60*60*24)
-        logging.debug('Fetched Management IPS Version: '+str(ips_current_ver_info)+", most recent:"+str(ips_current_ver_info)+" From:"+str(ips_date_last_install_iso))
-        #work with it
-        if not ips_bool_update:
-            logging.debug("Update available: " +str(ips_bool_update))
-            output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+str(ips_date_last_install_iso)+" - Installed Version "+str(ips_current_ver_info)+" - Newest: "+str(ips_update_ver_info)}})
-            output_code.append("OK")
-        elif ips_update_date_delta > 3:
-            logging.debug("Update available: " +str(ips_bool_update))
-            output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
-            output_code.append("CRITICAL")
-        elif ips_update_date_delta > 0 and ips_update_date_delta < 3:
-            logging.debug("Update available: " +str(ips_bool_update))
-            output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
-            output_code.append("WARNING")
+        if "N/A" not in res_ipsver_mgmt.data["latest-version"]:
+            ips_date_update=res_ipsver_mgmt.data["latest-version-creation-time"]
+            ips_date_update_posix=ips_date_update["posix"]
         else:
-            logging.debug("Something is wrong - API Response: " +str(login_res))
-            output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response (with -v)"}})
-            output_code.append("UNKNOWN")
+            pass
+        #
+        #
+        if "N/A" not in res_ipsver_mgmt.data["latest-version"]:
+            ips_update_date_delta=((ips_date_last_install_posix/1000 - ips_date_update_posix/1000))/(60*60*24)
+            logging.debug('Fetched Management IPS Version: '+str(ips_current_ver_info)+", most recent:"+str(ips_current_ver_info)+" From:"+str(ips_date_last_install_iso))
+            #work with it
+            if not ips_bool_update:
+                logging.debug("Update available: " +str(ips_bool_update))
+                output_text.update({"Monitor Management IPS Version": {"Result" : "OK! No Update available - Last installed update: "+str(ips_date_last_install_iso)+" - Installed Version "+str(ips_current_ver_info)+" - Newest: "+str(ips_update_ver_info)}})
+                output_code.append("OK")
+            elif ips_update_date_delta > 3:
+                logging.debug("Update available: " +str(ips_bool_update))
+                output_text.update({"Monitor Management IPS Version": {"Result" : "CRITICAL! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
+                output_code.append("CRITICAL")
+            elif ips_update_date_delta > 0 and ips_update_date_delta < 3:
+                logging.debug("Update available: " +str(ips_bool_update))
+                output_text.update({"Monitor Management IPS Version": {"Result" : "WARNING! Updates available -  Last installed update: "+str(ips_date_last_install_iso)+" - last Installed version "+str(ips_current_ver_info)+"  - Newest: "+str(ips_update_ver_info)+" - Update Date Delta: "+str(ips_update_date_delta)+" Days!"}})
+                output_code.append("WARNING")
+            else:
+                logging.debug("Something is wrong - API Response: " +str(login_res))
+                output_text.update({"Monitor Management IPS Version": {"Result" : "There is something wrong - please check! API Response (with -v)"}})
+                output_code.append("UNKNOWN")
+        elif "N/A" in res_ipsver_mgmt.data["latest-version"]:
+            logging.debug("No or invalid value for \"latest-version\" - was there ever an IPS update been downloaded?" +str(login_res))
+            output_text.update({"Monitor Management IPS Version": {"Result" : "No or invalid value for \"latest-version\" - was there ever an IPS update been downloaded?"}})
+            output_code.append("CRITICAL")        
+
     else:
-        logging.debug("Soomething is wron - API Response: " +str(login_res))
-        output_text.update({"meh - something went wrong"})
+        logging.debug("Something is wrong - API Response: " +str(login_res))
+        output_text.update({"Message":"meh - something went wrong"})
         output_code.append("UNKNOWN")
+        sys.exit("LogIn failed! API Response: "+str(login_res))
 
     return output_text,output_code,ipsver_mgmt
 
@@ -122,13 +140,17 @@ def fun_getipsver_gws():
     global ipsver_mgmt
     global output_text
     global output_code
-    client_args = APIClientArgs(server=args.api_server, context=args.api_context, unsafe='True')
+    if args.api_context:
+        client_args = APIClientArgs(server=args.api_server, context=args.api_context, unsafe='True')
+    else:
+        client_args = APIClientArgs(server=args.api_server, unsafe='True')
     with APIClient(client_args) as client:
         # If Errer occurs due to fingerprint mismatch
         if client.check_fingerprint() is False:
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Could not get the server's fingerprint - Check connectivity with the server."}})
             output_code.append("UNKNOWN")
-
+            print("UNKNOWN! Logging into SMS not successful! Please troubleshoot/debug script! "+str(output_text))
+            raise SystemExit(UNKNOWN)
         # login to server:r
         login_res = client.login(args.api_user,args.api_pwd)
 
@@ -137,6 +159,8 @@ def fun_getipsver_gws():
             logging.debug("Something is wrong - API Response: " +str(login_res))
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Login failed: {}".format(login_res.error_message)}})
             output_code.append("UNKNOWN")
+            print("UNKNOWN! Logging into SMS not successful! Please troubleshoot/debug script! "+str(output_text))
+            raise SystemExit(UNKNOWN)
         res_getmanagedgws = client.api_call("show-simple-gateways",{"limit":"500"})
         gwselector=0
         totalgws=res_getmanagedgws.data['total']
@@ -145,18 +169,23 @@ def fun_getipsver_gws():
         while gwselector < totalgws:
             gwname=res_getmanagedgws.data['objects'][gwselector]['name']
             res_ipsvermgmt_task = client.api_call("run-script",{"script-name":"get ips version","script":"clish -c \"show security-gateway ips status\"","targets" : gwname}) 
-            ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
-            dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
-            if ipsver_mgmt!=ipsver_gw.group(1):
-                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
-                output_code.append("WARNING")
-            elif ipsver_mgmt==ipsver_gw.group(1):
-                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"OK! Mgmt "+str(ipsver_mgmt)+" - Gw "+str(ipsver_gw.group(1))+""}})
-                output_code.append("OK")
+            if res_ipsvermgmt_task.success is True:
+                ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
+                dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
+                if ipsver_mgmt!=ipsver_gw.group(1):
+                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
+                    output_code.append("WARNING")
+                elif ipsver_mgmt==ipsver_gw.group(1):
+                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"OK! Mgmt "+str(ipsver_mgmt)+" - Gw "+str(ipsver_gw.group(1))+""}})
+                    output_code.append("OK")
+                else:
+                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
+                    output_code.append("UNKNOWN")
+                logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
             else:
-                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
-                output_code.append("UNKNOWN")
-            logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
+                output_text.update({"Message":"Gateway check failed on "+str(gwname)+"! Check Connection!"})
+                output_code.append("WARNING")
+                logging.debug("Gateway check failed on "+str(gwname)+"! Check Connection!")
             gwselector=gwselector+1
     return output_text, output_code
 
@@ -189,4 +218,3 @@ if __name__ == "__main__":
         fun_getipsver_mgmt()
         fun_getipsver_gws()
         fun_nagiosize()
-
