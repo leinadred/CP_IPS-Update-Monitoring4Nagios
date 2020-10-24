@@ -73,6 +73,7 @@ Changelog
 - added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")   
 
 20200906   
+
 - added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging   
 
 20201024   
