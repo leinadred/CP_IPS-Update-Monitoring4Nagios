@@ -1,4 +1,7 @@
-CP_IPS-Update-Monitoring4Nagios
+Monitoring IPS Updates on CP Management Servers and managed Gateways
+===========================================================================
+Basic informations
+---------------------
 
 Script is logging into Checkpoint Management and checking the IPS Database Update Version and Installation Dates.
 
@@ -7,23 +10,58 @@ For the login, the SDK (https://github.com/CheckPointSW/cp_mgmt_api_python_sdk) 
 After successful logging in, we are parsing the API output from show-ip-status and comparing it with i.e actual date or "update available" followed by sending an API request to "show-simple-gateways" to fetch managed gateways and running "run-script -> "clish -c "show security-gateway ips status""" on them. Now the Versions of installed IPS are compared. if any of the checks above ends with a warning, state is "WARNING". if one check is in critical state, the script gives back "CRITICAL" state and so on. Only if all checks are "OK", an OK will be sent to nagios. 
 s based systems.
 
-OK = 0 - WARNING = 1 - CRITICAL = 2 - UNKNOWN = 3
-![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png?raw=true)
-![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_warn.png?raw=true)
+- OK = 0 
+- WARNING = 1 
+- CRITICAL = 2 
+- UNKNOWN = 3
 
-The Thresholds for "WARNING" / "CRITICAL" are configurable within the script (on daily base).
+(can be adjusted if needed - depending on use case)
 
-To use it on Nagios Server you need:
-python installed (script worked with 2.7, 3.6 and 3.7)
+The Thresholds for "WARNING" / "CRITICAL" are configurable within the script (on day base).
 
-how this is installed on my machine (CENTREON 20.04.5): 
-  in /usr/lib/centreon/plugins added a folder "added" with scipts not coming from centreon (in case centreon is updating their plugins, they won´t delete my :)
-  installed python3.x (CentOS delivers 3.6, which works)
-  installed Checkpoint SDK (link above) with *pip install git+https://github.com/CheckPointSW/cp_mgmt_api_python_sdk*  
-  *chmod +x monitor.py* - otherwise execute the file like *python(2/3/3.x) monitor.py -H HOSTADDRESS [-C context-lik-12389123-1231/web_api ] -U apiuser -P securepass*
-  changed owner and group of monitor.py to centreon-engine (will differ depending on solution you are using, might also be "nagios")
-  create command and checks at monitoring engine level.
 
+![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_ok.png)
+![alt text](https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/blob/master/ips_check_warn.png)
+
+
+
+Installation
+---------------------
+
+Prerequisites:
+
+- Python (worked for me with python 2.7, 3.6, 3.7, 3.8 and 3.9)
+- Checkpoint Management API SDK (https://github.com/CheckPointSW/cp_mgmt_api_python_sdk)
+- monitor.py (accessible and executable for executing user)
+- user on Management Server to login via API (user and password, API Key based authentication might be implemented later)
+    - (the API user must have the right to execute "one time scripts" at gateways (user settings -> Permission Profile -> Gateways -> "Run One Time Script"))
+
+
+My Environment - maybe it helps:
+
+- Server - Centreon 20.04.5 on Centos 6
+- installed python3.x
+- installed Check Point Mgmt API SDK with *pip install git+https://github.com/CheckPointSW/cp_mgmt_api_python_sdk*
+- installed used python modules, if they are not installed by default
+- created a directory beneath "/usr/lib/centreon/plugins" called "added"
+- "git clone https://github.com/leinadred/CP_IPS-Update-Monitoring4Nagios/"
+
+Centreon specific configuration:
+
+- created command for executing the script
+- created a service template with all appropriate setting (either directly or via another template) and linked it with the command
+- created a host and a service linked to that host, referencing to the service template, enter the Argument data here (Host, User, Password)
+
+Deploy config
+
+Issues / Bugs / Tips
+----------------------
+in case you have bugs, problems with using the script and so - please reach out 
+I am kind of a beginner with python but will be happy to assist and/or learn more on python
+
+
+Changelog
+-------------
 20200903  
 added "-C" for Context, needed for SmartCloud-1   
 added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")  
