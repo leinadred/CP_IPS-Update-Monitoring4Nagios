@@ -34,7 +34,7 @@ Prerequisites:
 - Checkpoint Management API SDK (https://github.com/CheckPointSW/cp_mgmt_api_python_sdk)
 - monitor.py (accessible and executable for executing user)
 - user on Management Server to login via API (user and password, API Key based authentication might be implemented later)
-    - (the API user must have the right to execute "one time scripts" at gateways (user settings -> Permission Profile -> Gateways -> "Run One Time Script"))
+- (the API user must have the right to execute "one time scripts" at gateways (user settings -> Permission Profile -> Gateways -> "Run One Time Script"))
 
 
 My Environment - maybe it helps:
@@ -62,15 +62,15 @@ I am kind of a beginner with python but will be happy to assist and/or learn mor
 
 Changelog
 -------------
-20200903  
-added "-C" for Context, needed for SmartCloud-1   
-added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")  
-20200906  
-added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging  
-20201024  
-added and improved error handling  
+20200903    
+added "-C" for Context, needed for SmartCloud-1     
+added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")    
+20200906    
+added optional arg "-M" for monitoring Management Servers IPS Version only and "-v" for verbosity and debugging    
+20201024    
+added and improved error handling    
+
 - when SMS did not get an IPS version update or was not able to fetch recent version  
 - when SMS cannot reach a gateway  
 - added more logging outputs at verbose executing (-v)  
 - for checking on "On Premise" SMS, no argument "-C" needed
-
