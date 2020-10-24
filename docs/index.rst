@@ -69,6 +69,7 @@ Changelog
 20200903 
 
 added "-C" for Context, needed for SmartCloud-1   
+
 added possibility to check IPS Version on managed gateways via the Management Server (Api Call "run-script")  
 
 20200906  
