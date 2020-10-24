@@ -32,6 +32,6 @@ added optional arg "-M" for monitoring Management Servers IPS Version only and "
 added and improved error handling  
 - when SMS did not get an IPS version update or was not able to fetch recent version  
 - when SMS cannot reach a gateway  
-- added more logging outputs at verbose executing (-v)
-
+- added more logging outputs at verbose executing (-v)  
+- for checking on "On Premise" SMS, no argument "-C" needed
 
