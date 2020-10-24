@@ -1,5 +1,5 @@
+CP_IPS-Update-Monitoring4Nagios
 
-# CP_IPS-Update-Monitoring4Nagios
 Script is logging into Checkpoint Management and checking the IPS Database Update Version and Installation Dates.
 
 For the login, the SDK (https://github.com/CheckPointSW/cp_mgmt_api_python_sdk) is used (Option "unsafe=true" is passed to api, as Nagios is not able to respond to questions).
