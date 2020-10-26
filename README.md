@@ -77,4 +77,5 @@ Changelog
   - when SMS did not get an IPS version update or was not able to fetch recent version
   - when SMS cannot reach a gateway
   - added more logging outputs at verbose executing (-v)
-  - for checking on "On Premise" SMS, no argument "-C" needed
+
+- for checking on "On Premise" SMS, use argument "-C none"
