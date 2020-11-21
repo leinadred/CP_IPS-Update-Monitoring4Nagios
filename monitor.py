@@ -68,7 +68,7 @@ def fun_getipsver_mgmt():
     else:
         client_args = APIClientArgs(server=args.api_server, unsafe='True')
     with APIClient(client_args) as client:
-        # If Errer occurs due to fingerprint mismatch
+        # If Error occurs due to fingerprint mismatch
         if client.check_fingerprint() is False:
             output_text.update({"Message":"Could not get the server's fingerprint - Check connectivity with the server."})
             output_code.append("UNKNOWN")
@@ -172,18 +172,23 @@ def fun_getipsver_gws():
             gwname=res_getmanagedgws.data['objects'][gwselector]['name']
             res_ipsvermgmt_task = client.api_call("run-script",{"script-name":"get ips version","script":"clish -c \"show security-gateway ips status\"","targets" : gwname}) 
             if res_ipsvermgmt_task.success is True:
-                ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
-                dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
-                if ipsver_mgmt!=ipsver_gw.group(1):
-                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
-                    output_code.append("WARNING")
-                elif ipsver_mgmt==ipsver_gw.group(1):
-                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"OK! Mgmt "+str(ipsver_mgmt)+" - Gw "+str(ipsver_gw.group(1))+""}})
-                    output_code.append("OK")
+                try:
+                    res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription']=="IPS Blade is disabled"
+                except:
+                    ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
+                    dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
+                    if ipsver_mgmt!=ipsver_gw.group(1):
+                        output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
+                        output_code.append("WARNING")
+                    elif ipsver_mgmt==ipsver_gw.group(1):
+                        output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"OK! Mgmt "+str(ipsver_mgmt)+" - Gw "+str(ipsver_gw.group(1))+""}})
+                        output_code.append("OK")
+                    else:
+                        output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
+                        output_code.append("UNKNOWN")
+                    logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
                 else:
-                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"UNKNOWN! Something weird happened"}})
-                    output_code.append("UNKNOWN")
-                logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
+                    output_text.update({"Result":"IPS Blade disabled on "+str(gwname)})
             else:
                 output_text.update({"Message":"Gateway check failed on "+str(gwname)+"! Check Connection!"})
                 output_code.append("WARNING")
