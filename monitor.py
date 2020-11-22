@@ -147,7 +147,7 @@ def fun_getipsver_gws():
     else:
         client_args = APIClientArgs(server=args.api_server, unsafe='True')
     with APIClient(client_args) as client:
-        # If Errer occurs due to fingerprint mismatch
+        # If Error occurs due to fingerprint mismatch
         if client.check_fingerprint() is False:
             output_text.update({"Monitor Logging into Mgmt API": {"Result": "Could not get the server's fingerprint - Check connectivity with the server."}})
             output_code.append("UNKNOWN")
@@ -168,14 +168,13 @@ def fun_getipsver_gws():
         totalgws=res_getmanagedgws.data['total']
         logging.debug("Checking IPS version on "+str(res_getmanagedgws.data['total'])+" Gateways")
         dict_ipsver_gw={}
-        while gwselector < totalgws:
+        while gwselector <= totalgws-1:
             gwname=res_getmanagedgws.data['objects'][gwselector]['name']
-            res_ipsvermgmt_task = client.api_call("run-script",{"script-name":"get ips version","script":"clish -c \"show security-gateway ips status\"","targets" : gwname}) 
-            if res_ipsvermgmt_task.success is True:
-                try:
-                    res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription']=="IPS Blade is disabled"
-                except:
-                    ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvermgmt_task.data['tasks'][0]['task-details'][0]['statusDescription'])
+            res_ipsvergw_task = client.api_call("run-script",{"script-name":"get ips version","script":"clish -c \"show security-gateway ips status\"","targets" : gwname}) 
+            if res_ipsvergw_task.success is True:               
+                res_ipsvergw_task_result=client.api_call("show-task",{"task-id" : res_ipsvergw_task.data['tasks'][0]['task-id'],"details-level":"full"}).data['tasks'][0]['task-details'][0]['statusDescription']
+                if res_ipsvergw_task_result!="IPS Blade is disabled":
+                    ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvergw_task_result)
                     dict_ipsver_gw.update({ gwname: {"gwversion" : ipsver_gw.group(1),"mgmtversion" : ipsver_mgmt,"gwmgmtsame" : ipsver_mgmt==ipsver_gw.group(1)}})
                     if ipsver_mgmt!=ipsver_gw.group(1):
                         output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"has not the same version as Management! Management:"+str(ipsver_mgmt)+" - Gw:"+str(ipsver_gw.group(1))+""}})
