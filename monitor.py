@@ -187,9 +187,10 @@ def fun_getipsver_gws():
                         output_code.append("UNKNOWN")
                     logging.debug("IPS version on "+str(gwname)+": "+ipsver_gw.group(1))
                 else:
-                    output_text.update({"Result":"IPS Blade disabled on "+str(gwname)})
+                    output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version":{"Result":"IPS Blade disabled - Ignoring"}})
+                    output_code.append("OK")
             else:
-                output_text.update({"Message":"Gateway check failed on "+str(gwname)+"! Check Connection!"})
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"Error - Gateway check failed! Check Connection!"}})
                 output_code.append("WARNING")
                 logging.debug("Gateway check failed on "+str(gwname)+"! Check Connection!")
             gwselector=gwselector+1
