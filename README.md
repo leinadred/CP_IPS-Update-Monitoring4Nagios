@@ -79,3 +79,9 @@ Changelog
   - added more logging outputs at verbose executing (-v)
 
 - for checking on "On Premise" SMS, use argument "-C none"
+
+20201124
+
+- Improved handling if gateways are not reached or IPS is disabled (will be mentioned in Output, but with state OK)
+
+- corrected some typos
