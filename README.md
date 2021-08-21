@@ -85,3 +85,9 @@ Changelog
 - Improved handling if gateways are not reached or IPS is disabled (will be mentioned in Output, but with state OK)
 
 - corrected some typos
+
+20210821
+
+- Added -i and -s for ignore/select specific gateways
+
+- smaller improvements 
