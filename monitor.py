@@ -34,9 +34,12 @@ parser.add_argument('-P', '--api_pwd', help='API Users Password')
 parser.add_argument('-C', '--api_context', help='If SmartCloud-1 is used, enter context information here (i.e. bhkjnkm-knjhbas-d32424b/web_api) - for On Prem enter \"-C none\"')
 parser.add_argument('-M', '--mgmtonly', help="check IPS version on Management Station only", action="store_true")
 parser.add_argument('-v', '--verbose', help='Run Script with logging output - Troubleshooting and so', action='store_true')
+parser.add_argument('-s', '--selectgw', help='Check only this Gateway(s) (by name) - multiple comma separated')
+parser.add_argument('-i', '--ignoregw', help='Check all Gateways but this - multiple comma separated')
 args = parser.parse_args()
 
-
+if args.selectgw and args.ignoregw:
+    raise SystemExit("-i and -s are not compatible to run on same call!")
 if args.api_context == "none":
     args.api_context = False
 #################################################################################################
@@ -166,12 +169,24 @@ def fun_getipsver_gws():
         res_getmanagedgws = client.api_call("show-simple-gateways",{"limit":"500"})
         gwselector=0
         totalgws=res_getmanagedgws.data['total']
-        logging.debug("Checking IPS version on "+str(res_getmanagedgws.data['total'])+" Gateways")
+        if args.ignoregw:
+            logging.debug("Found "+str(res_getmanagedgws.data['total'])+" Gateways! Following will be ignored: "+str(args.ignoregw)+"!")
+        elif args.selectgw:
+            logging.debug("Found "+str(res_getmanagedgws.data['total'])+" Gateways! Following will be checked for IPS Version: "+str(args.selectgw)+"!")
+        else:
+            logging.debug("Found "+str(res_getmanagedgws.data['total'])+" Gateways")
         dict_ipsver_gw={}
-        while gwselector <= totalgws-1:
-            gwname=res_getmanagedgws.data['objects'][gwselector]['name']
+        for gateway in res_getmanagedgws.data['objects']:
+            #while gwselector <= totalgws-1:
+            gwname=gateway['name']
+            if args.ignoregw and gwname in args.ignoregw:
+                varcheckgw=False
+            elif args.selectgw and not gwname in args.selectgw:
+                varcheckgw=False
+            else:
+                varcheckgw=True
             res_ipsvergw_task = client.api_call("run-script",{"script-name":"get ips version","script":"clish -c \"show security-gateway ips status\"","targets" : gwname}) 
-            if res_ipsvergw_task.success is True:               
+            if res_ipsvergw_task.success is True and varcheckgw is True:               
                 res_ipsvergw_task_result=client.api_call("show-task",{"task-id" : res_ipsvergw_task.data['tasks'][0]['task-id'],"details-level":"full"}).data['tasks'][0]['task-details'][0]['statusDescription']
                 if res_ipsvergw_task_result!="IPS Blade is disabled":
                     ipsver_gw=re.search('IPS Update Version: (.+?), ', res_ipsvergw_task_result)
@@ -189,11 +204,14 @@ def fun_getipsver_gws():
                 else:
                     output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version":{"Result":"IPS Blade disabled - Ignoring"}})
                     output_code.append("OK")
-            else:
-                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"Error - Gateway check failed! Check Connection!"}})
+            elif res_ipsvergw_task.success is False and varcheckgw is True:
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"Connection Failed or IPS Version could not be retreived!"}})
                 output_code.append("WARNING")
-                logging.debug("Gateway check failed on "+str(gwname)+"! Check Connection!")
-            gwselector=gwselector+1
+                logging.debug("Gateway IPS Version could not be checked "+str(gwname)+"! Check the connection!")
+            else:
+                output_text.update({"Monitor Gateway "+str(gwname)+" IPS Version": {"Result":"ignored!"}})
+                output_code.append("OK")
+                logging.debug("Gateway check did not happen on "+str(gwname)+"! Was set to ignore!")
     return output_text, output_code
 
 def fun_nagiosize():
