@@ -1,6 +1,7 @@
 Monitoring IPS Updates on CP Management Servers and managed Gateways
 ===========================================================================
-
+![license](https://img.shields.io/github/license/leinadred/CP_IPS-Update-Monitoring4Nagios)	
+![language](https://img.shields.io/github/languages/top/leinadred/CP_IPS-Update-Monitoring4Nagios)
 Basic informations
 ---------------------
 
